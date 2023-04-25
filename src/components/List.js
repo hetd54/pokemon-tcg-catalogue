@@ -1,10 +1,12 @@
-import React from "react";
+import React, {Component} from "react";
 import Aside from "./Aside";
 import Canvas from "./Canvas";
+import Header from "./Header";
+import { HashLink } from 'react-router-hash-link';
 
 const API_KEY = process.env.REACT_APP_API_KEY;
 
-export default class List extends React.Component (props){
+export default class List extends Component<{ setId: string }>{
   constructor(props) {
     super(props);
     this.state = {
@@ -28,10 +30,11 @@ export default class List extends React.Component (props){
 
   componentDidMount() {
     // get all entities - GET
-    if (!localStorage.getItem(`${props.set}-cards`)){
+    if (!localStorage.getItem(`${this.props.id}-cards`)){
+        console.log(this.props.id);
 
     
-    fetch(`https://api.pokemontcg.io/v2/cards?q=set.name:${props.set}`
+    fetch(`https://api.pokemontcg.io/v2/cards?q=set.name:${this.props.id}`
     ,{
     "method": "GET",
     "headers": {
@@ -42,7 +45,7 @@ export default class List extends React.Component (props){
     })
     .then(response => response.json())
     .then(response => {
-    this.set = props.set;
+    this.set = this.props.id;
     this.totalCards = response.data.length;
     
     for (let i =0; i < response.data.length; i++){
@@ -61,7 +64,7 @@ export default class List extends React.Component (props){
             },
             ],
         }), () => {
-          localStorage.setItem(`${props.set}-cards`, JSON.stringify(this.state.cards));
+          localStorage.setItem(`${this.props.id}-cards`, JSON.stringify(this.state.cards));
 
           this.loading = false;
         }
@@ -75,7 +78,7 @@ export default class List extends React.Component (props){
     });
   } else {
     
-    let data = JSON.parse(localStorage.getItem(`${props.set}-cards`));
+    let data = JSON.parse(localStorage.getItem(`${this.props.id}-cards`));
 
     this.setState( { cards: data } );
 
@@ -107,7 +110,7 @@ export default class List extends React.Component (props){
       } else {
         this.numberOwned--;
       }
-      localStorage.setItem(`${props.set}-cards`, JSON.stringify(this.state.cards));
+      localStorage.setItem(`${this.props.id}-cards`, JSON.stringify(this.state.cards));
     };
 
 
@@ -125,25 +128,25 @@ export default class List extends React.Component (props){
         title="Unowned Cards:"
         children={cards.map((item, index) => {
           return (
-            //TODO: Load only unowned
-            <li key={index}>
-              <a href={ `#${item.id}` } className={lineItem}>
+            <li key={index} className={item.owned=== "Yes" ? "hidden" : "visible"}>
+              <HashLink to={ `#${item.id}` } className={lineItem} state={{ id: `${item.set}` }}>
               <span className={textClass}>{item.name}</span>
-              </a>
+              </HashLink>
               
             </li>
                     );})}
                     />
         
-        <div className="relative flex min-h-screen flex-col justify-center overflow-hidden bg-gray-50 ">
+        <div className="relative flex min-h-screen flex-col justify-center overflow-hidden bg-gray-50 sm:ml-64">
+            <Header/>
           <div className={this.loading=== false ? "hidden" : "visible"}>
             <p>Loading...</p>
           <Canvas/>
           </div>
           
         <div className={this.loading=== true ? "hidden" : "visible"}>
+            <div className="text-center">
               <h2 className="mb-2 mt-0 text-3xl font-medium leading-tight text-primary">Set: {this.set}</h2>
-              <div>
                 <p>Cards Owned: {this.numberOwned}/{this.totalCards}</p>
                 <button onClick={() => {
                   localStorage.clear();

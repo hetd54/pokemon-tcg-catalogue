@@ -2,14 +2,26 @@ export const menuItems = [
 
   {
     title: 'Generations',
-    url: 'catalogue/generations',
+    url: 'generations',
   },
   {
-    title: 'Sword & Shield',
-    url: 'catalogue/swsh1',
+    title: 'Flashfire',
+    url: 'flashfire',
   },
   {
-    title: 'SEO',
-    url: 'seo',
-  }
+    title: 'XY',
+    url: 'xy',
+  },
+  {
+    title: 'Arceus',
+    url: 'arceus',
+  },
+  {
+    title: 'Platinum',
+    url: 'platinum',
+  },
+  {
+    title: 'Stormfront',
+    url: 'stormfront',
+  },
 ]
