@@ -2,7 +2,8 @@ import React, {Component} from "react";
 import Aside from "./Aside";
 import Canvas from "./Canvas";
 import Header from "./Header";
-import { HashLink } from 'react-router-hash-link';
+
+
 
 const API_KEY = process.env.REACT_APP_API_KEY;
 
@@ -31,6 +32,7 @@ export default class List extends Component<{ setId: string }>{
   
 
   componentDidMount() {
+    
     // get all entities - GET
     if (!localStorage.getItem(`${this.props.id}-cards`)){
         console.log(this.props.id);
@@ -97,10 +99,11 @@ export default class List extends Component<{ setId: string }>{
     this.set = data[0].set;
     this.loading = false;
   }
-
+  
     
     }
 
+  // For owned cards
   changeHandler = (event) => {
       const nam = event.target.name;
       const val = event.target.value;
@@ -117,29 +120,17 @@ export default class List extends Component<{ setId: string }>{
       localStorage.setItem(`${this.props.id}-cards`, JSON.stringify(this.state.cards));
     };
 
-
-
+    
   render() {
     let cards = this.state.cards;
     let unowned = "block h-full w-full rounded-lg object-cover object-center hover:opacity-80";
     let owned = "block h-full w-full rounded-lg object-cover object-center opacity-50";
-    let lineItem = "flex items-center p-2 rounded-lg hover:text-red-600 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700";
-    let textClass = "flex-1 ml-3";
     return (
       <div>
-        
-        <Aside
-        title="Unowned Cards:"
-        children={cards.map((item, index) => {
-          return (
-            <li key={index} className={item.owned=== "Yes" ? "hidden" : "visible"}>
-              <HashLink to={ `#${item.id}` } className={lineItem} state={{ id: `${item.set}` }}>
-              <span className={textClass}>{item.name}: {index+1}/{item.setPrinted}</span>
-              </HashLink>
-              
-            </li>
-                    );})}
-                    />
+            <Aside
+            id={this.props.id}
+            title="Unowned Cards: "
+            pokeList={cards}/>
         
         <div className="relative text-center flex min-h-screen flex-col overflow-hidden bg-gray-50 sm:ml-64">
             <Header/>
@@ -150,7 +141,7 @@ export default class List extends Component<{ setId: string }>{
           
         <div className={this.loading=== true ? "collapse" : "visible"}>
             <div className="text-center text-white bg-gray-700">
-              <h2 className="mb-2 mt-0 text-3xl font-medium leading-tight text-primary text-red-600 font-bold uppercase">Set: {this.set} <img src={cards.setLogo}/></h2>
+              <h2 className="mb-2 mt-0 text-3xl font-medium leading-tight text-primary text-red-600 font-bold uppercase">Set: {this.set} <img alt="" src={cards.setLogo}/></h2>
                 <p>Cards Owned: {this.numberOwned}/{this.totalCards}</p>
                 <button onClick={() => {
                   localStorage.clear();
@@ -184,7 +175,6 @@ export default class List extends Component<{ setId: string }>{
                           : (item.owned = "No");
                           this.saveLocal(item.owned);
                           this.forceUpdate();
-
                         }}
                       >
                       {item.name}
