@@ -14,6 +14,7 @@ export default class List extends Component<{ setId: string }>{
       name: '',
       id: '',
       set: '',
+      setlogo: '',
       image: '',
       totalCards: 0,
       marketPrice: '',
@@ -46,6 +47,7 @@ export default class List extends Component<{ setId: string }>{
     .then(response => response.json())
     .then(response => {
     this.set = this.props.id;
+    this.setLogo = response.data.set.images.logo;
     this.totalCards = response.data.length;
     
     for (let i =0; i < response.data.length; i++){
@@ -119,7 +121,7 @@ export default class List extends Component<{ setId: string }>{
     let cards = this.state.cards;
     let unowned = "block h-full w-full rounded-lg object-cover object-center hover:opacity-80";
     let owned = "block h-full w-full rounded-lg object-cover object-center opacity-50";
-    let lineItem = "flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700";
+    let lineItem = "flex items-center p-2 rounded-lg hover:text-red-600 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700";
     let textClass = "flex-1 ml-3 whitespace-nowrap";
     return (
       <div>
@@ -137,16 +139,16 @@ export default class List extends Component<{ setId: string }>{
                     );})}
                     />
         
-        <div className="relative flex min-h-screen flex-col justify-center overflow-hidden bg-gray-50 sm:ml-64">
+        <div className="relative text-center flex min-h-screen flex-col overflow-hidden bg-gray-50 sm:ml-64">
             <Header/>
           <div className={this.loading=== false ? "hidden" : "visible"}>
             <p>Loading...</p>
           <Canvas/>
           </div>
           
-        <div className={this.loading=== true ? "hidden" : "visible"}>
+        <div className={this.loading=== true ? "collapse" : "visible"}>
             <div className="text-center">
-              <h2 className="mb-2 mt-0 text-3xl font-medium leading-tight text-primary">Set: {this.set}</h2>
+              <h2 className="mb-2 mt-0 text-3xl font-medium leading-tight text-primary">Set: {this.set} <img src={this.}/></h2>
                 <p>Cards Owned: {this.numberOwned}/{this.totalCards}</p>
                 <button onClick={() => {
                   localStorage.clear();

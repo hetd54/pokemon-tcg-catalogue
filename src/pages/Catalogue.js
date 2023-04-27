@@ -1,15 +1,13 @@
-import { useLocation } from 'react-router-dom';
 import List from "../components/List";
 import Footer from "../components/Footer";
 import ScrollButton from "../components/ScrollButton";
 
 const Catalogue = () => {
-    let location = useLocation();
-    console.log(location.state.id);
+    let setID = localStorage.getItem("collection");
     
     return (
         <div>
-        <List id={location.state.id}/>
+        <List id={setID}/>
             <ScrollButton/>
         <Footer />
         </div>
