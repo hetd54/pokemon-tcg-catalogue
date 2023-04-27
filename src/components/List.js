@@ -15,6 +15,7 @@ export default class List extends Component<{ setId: string }>{
       id: '',
       set: '',
       setlogo: '',
+      setPrinted: 0,
       image: '',
       totalCards: 0,
       marketPrice: '',
@@ -47,7 +48,6 @@ export default class List extends Component<{ setId: string }>{
     .then(response => response.json())
     .then(response => {
     this.set = this.props.id;
-    this.setLogo = response.data.set.images.logo;
     this.totalCards = response.data.length;
     
     for (let i =0; i < response.data.length; i++){
@@ -59,6 +59,8 @@ export default class List extends Component<{ setId: string }>{
                 name: response.data[i].name,
                 id: response.data[i].id,
                 set: response.data[i].set.name,
+                setLogo: response.data[i].set.images.logo,
+                setPrinted: response.data[i].set.printedTotal,
                 image: response.data[i].images.small,
                 marketPrice: '$',
                 totalCards: response.data.length,
@@ -122,7 +124,7 @@ export default class List extends Component<{ setId: string }>{
     let unowned = "block h-full w-full rounded-lg object-cover object-center hover:opacity-80";
     let owned = "block h-full w-full rounded-lg object-cover object-center opacity-50";
     let lineItem = "flex items-center p-2 rounded-lg hover:text-red-600 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700";
-    let textClass = "flex-1 ml-3 whitespace-nowrap";
+    let textClass = "flex-1 ml-3";
     return (
       <div>
         
@@ -132,7 +134,7 @@ export default class List extends Component<{ setId: string }>{
           return (
             <li key={index} className={item.owned=== "Yes" ? "hidden" : "visible"}>
               <HashLink to={ `#${item.id}` } className={lineItem} state={{ id: `${item.set}` }}>
-              <span className={textClass}>{item.name}</span>
+              <span className={textClass}>{item.name}: {index+1}/{item.setPrinted}</span>
               </HashLink>
               
             </li>
@@ -147,8 +149,8 @@ export default class List extends Component<{ setId: string }>{
           </div>
           
         <div className={this.loading=== true ? "collapse" : "visible"}>
-            <div className="text-center">
-              <h2 className="mb-2 mt-0 text-3xl font-medium leading-tight text-primary">Set: {this.set} <img src={this.}/></h2>
+            <div className="text-center text-white bg-gray-700">
+              <h2 className="mb-2 mt-0 text-3xl font-medium leading-tight text-primary text-red-600 font-bold uppercase">Set: {this.set} <img src={cards.setLogo}/></h2>
                 <p>Cards Owned: {this.numberOwned}/{this.totalCards}</p>
                 <button onClick={() => {
                   localStorage.clear();

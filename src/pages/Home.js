@@ -11,8 +11,10 @@ const Home = () => {
                 <span className="text-red-600 dark:text-red-500">  PokéTCG Catalog.</span>
                 </h1>
             </div>
-            <div className=" flex items-center justify-center h-72 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-blue-900 to-red-600">
+            <div className=" flex items-center justify-center h-screen bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-blue-900 to-red-600">
                 <div className="w-screen text-xl bg-gray-50 m-12">
+                    <div className="text-center text-white bg-gray-700"><h2>Available sets: </h2></div>
+                    
                     <MegaMenu/>
                 </div>
             </div>

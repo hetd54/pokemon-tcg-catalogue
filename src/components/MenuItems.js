@@ -11,13 +11,13 @@ const MenuItems = ({ items }, dropdown) => {
     }
 
   return (
-    <p className="menu-items text-center py-2">
+    <div className="menu-items text-center py-2">
 
         <Link className="flex flex-row items-center justify-center py-2 transition duration-150 ease-in-out" to="/catalogue" onClick={() => refreshPage(items.url)}>
             <img className="w-5 mx-2" src={items.logo}/>
             <p className="hover:text-red-600">{items.title}</p>
         </Link>
-    </p>
+    </div>
   );
 };
 
