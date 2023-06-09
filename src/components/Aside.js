@@ -1,12 +1,11 @@
-import React, {useState, useEffect, useContext} from "react";
+import React, {useState} from "react";
 import PokeList from "./PokeList";
 import Searchbar from "./Searchbar";
 
 
 function Aside (props){
-  const API_KEY = process.env.REACT_APP_API_KEY;
+
   const [input, setInput] = useState();
-  const [pokeListDefault, setPokeListDefault] = useState();
   const [pokeList, setPokeList] = useState();
   let cards;
 
@@ -16,7 +15,7 @@ function Aside (props){
     })
     setInput(input);
     setPokeList(filtered);
-    console.log(pokeList);
+
   }
 
   if (!pokeList){
