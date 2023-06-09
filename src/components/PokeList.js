@@ -11,7 +11,7 @@ const PokeList = ({pokeList=[]}) => {
           return (
             <li key={index} className={data.owned=== "Yes" ? "hidden" : "visible"}>
               <HashLink to={ `#${data.id}` } className={lineItem}>
-              <span className={textClass}>{data.name}: {index+1}/{data.setPrinted} </span>
+              <span className={textClass}>{data.name}: {data.printLocation}/{data.setPrinted} </span>
               </HashLink>
               
             </li>

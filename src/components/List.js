@@ -3,9 +3,13 @@ import Aside from "./Aside";
 import Canvas from "./Canvas";
 import Header from "./Header";
 
-
-
 const API_KEY = process.env.REACT_APP_API_KEY;
+
+// formatting for price
+const formatting_options = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+});
 
 export default class List extends Component<{ setId: string }>{
   constructor(props) {
@@ -16,18 +20,21 @@ export default class List extends Component<{ setId: string }>{
       id: '',
       set: '',
       setlogo: '',
+      printLocation: 0,
       setPrinted: 0,
       image: '',
       totalCards: 0,
       marketPrice: '',
-      owned: 'No'
+      owned: 'No',
+      priceChecked: '',
+      tcgUrl: ''
     };
     this.numberOwned = 0;
     this.set = "";
     this.totalCards = 0;
     this.changeHandler = this.changeHandler.bind(this);
     this.loading = true;
-   
+    this.newPrice = '';
   }
   
 
@@ -36,6 +43,8 @@ export default class List extends Component<{ setId: string }>{
     // get all entities - GET
     if (!localStorage.getItem(`${this.props.id}-cards`)){
         console.log(this.props.id);
+      //set formatting for pricing
+      
 
     
     fetch(`https://api.pokemontcg.io/v2/cards?q=set.name:${this.props.id}`
@@ -51,8 +60,37 @@ export default class List extends Component<{ setId: string }>{
     .then(response => {
     this.set = this.props.id;
     this.totalCards = response.data.length;
+  
     
     for (let i =0; i < response.data.length; i++){
+
+      if(response.data[i].tcgplayer === undefined){
+        console.log(response.data[i].id, response.data[i].name, response.data[i].set);
+      }
+      let price= '';
+      let updated = '';
+      let url = '';
+      if ((response.data[i].tcgplayer !== undefined) && (response.data[i].tcgplayer.prices !== undefined) && (response.data[i].tcgplayer.prices.normal) !== undefined){
+        price = `Normal: ${formatting_options.format(response.data[i].tcgplayer.prices.normal.market)}`
+        updated = response.data[i].tcgplayer.updatedAt;
+        url = response.data[i].tcgplayer.url;
+      } else if ((response.data[i].tcgplayer !== undefined) && (response.data[i].tcgplayer.prices !== undefined) && (response.data[i].tcgplayer.prices.holofoil) !== undefined){
+        price = `Holo: ${formatting_options.format(response.data[i].tcgplayer.prices.holofoil.market)}`
+        updated = response.data[i].tcgplayer.updatedAt;
+        url = response.data[i].tcgplayer.url;
+      } else if ((response.data[i].tcgplayer !== undefined)  && (response.data[i].tcgplayer.prices !== undefined) && (response.data[i].tcgplayer.prices.reverseHolofoil) !== undefined){
+        price = `Reverse Holo: ${formatting_options.format(response.data[i].tcgplayer.prices.reverseHolofoil.market)}`
+        updated = response.data[i].tcgplayer.updatedAt;
+        url = response.data[i].tcgplayer.url;
+      }  else {
+        const date = new Date();
+        let day = date.getDate();
+        let month = date.getMonth() + 1;
+        let year = date.getFullYear();
+        price = "No current price information available."
+        updated = `${year}/${month}/${day}`;
+        url =''
+      }
     this.setState(
         (prevState) => ({
             cards: [
@@ -62,11 +100,15 @@ export default class List extends Component<{ setId: string }>{
                 id: response.data[i].id,
                 set: response.data[i].set.name,
                 setLogo: response.data[i].set.images.logo,
+                printLocation: i+1,
                 setPrinted: response.data[i].set.printedTotal,
                 image: response.data[i].images.small,
-                marketPrice: '$',
                 totalCards: response.data.length,
-                owned: 'No'
+                owned: 'No',
+                marketPrice: price,
+                priceChecked: updated,
+                tcgUrl: url
+                
             },
             ],
         }), () => {
@@ -114,11 +156,51 @@ export default class List extends Component<{ setId: string }>{
     saveLocal = (changedItem) => {
       if(changedItem === "Yes"){
         this.numberOwned++;
-      } else {
+      } else if (changedItem === "No") {
         this.numberOwned--;
       }
       localStorage.setItem(`${this.props.id}-cards`, JSON.stringify(this.state.cards));
     };
+
+    // Get price for specific card
+    refreshPrice(id) {
+
+    const getPrice = fetch(`https://api.pokemontcg.io/v2/cards/${id}`
+    ,{
+    "method": "GET",
+    "headers": {
+            "X-Api-Key": API_KEY,
+            "content-type": "application/json",
+            "accept": "application/json"
+        },
+    })
+    .then(response => response.json())
+    .then(response => {
+      
+      let price = '';
+      if ((response.data.tcgplayer !== undefined) && (response.data.tcgplayer.prices !== undefined) && (response.data.tcgplayer.prices.normal) !== undefined){
+        price = `Normal: ${formatting_options.format(response.data.tcgplayer.prices.normal.market)}`
+      } else if ((response.data.tcgplayer !== undefined) && (response.data.tcgplayer.prices !== undefined) && (response.data.tcgplayer.prices.holofoil) !== undefined){
+        price = `Holo: ${formatting_options.format(response.data.tcgplayer.prices.holofoil.market)}`
+      } else if ((response.data.tcgplayer !== undefined)  && (response.data.tcgplayer.prices !== undefined) && (response.data.tcgplayer.prices.reverseHolofoil) !== undefined){
+        price = `Reverse Holo: ${formatting_options.format(response.data.tcgplayer.prices.reverseHolofoil.market)}`
+      }  else {
+        price = "No current price information available."
+      }
+      return price;
+    })
+
+    const newPrice = async () => {
+      const price = await getPrice;
+      console.log(price);
+      return price;
+    };
+
+    newPrice();
+
+    }
+
+    
 
     
   render() {
@@ -168,16 +250,24 @@ export default class List extends Component<{ setId: string }>{
                           />
                       </div>
                       <div className="w-full p-1 md:p-2">
+                      <p>{item.name}</p>
+                      <p className="text-sm"><a href={item.tcgUrl} target="_blank">{item.marketPrice}</a></p>
+                      <p className="text-xs">Last updated: {item.priceChecked}</p>
                       <button
-                        onClick={() => {
-                        item.owned === "No"
-                          ? (item.owned = "Yes")
-                          : (item.owned = "No");
-                          this.saveLocal(item.owned);
+                      className="text-xs text-red-600"
+                      onClick={() => {
+                        const date = new Date();
+                        let day = date.getDate();
+                        let month = date.getMonth() + 1;
+                        let year = date.getFullYear();
+                        item.marketPrice = this.refreshPrice(item.id);
+                        item.priceChecked = `${year}/${month}/${day}`;
+                          this.saveLocal(item.marketPrice);
                           this.forceUpdate();
+
                         }}
-                      >
-                      {item.name}
+                        >
+                        Refresh Price
                       </button>
                       </div>
                     </div>
